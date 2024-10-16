@@ -1,4 +1,4 @@
-_base_= './LFG-Net_x101_64x4d_1x_coco.py'
+# dataset settings
 dataset_type = 'CocoDataset'
 data_root = '/mnt/test/HRSID/'
 img_norm_cfg = dict(
@@ -6,11 +6,7 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True),
-    dict(
-        type='Resize',
-        img_scale=[(800, 800), (800, 1000)],
-        multiscale_mode='range',
-        keep_ratio=True),
+    dict(type='Resize', img_scale=(800, 800), keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
@@ -32,18 +28,14 @@ test_pipeline = [
             dict(type='Collect', keys=['img']),
         ])
 ]
-
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
-        type='RepeatDataset',
-        times=3,
-        dataset=dict(
-            type=dataset_type,
-            ann_file=data_root + 'annotations/train2017.json',
-            img_prefix=data_root + 'images/',
-            pipeline=train_pipeline)),
+        type=dataset_type,
+        ann_file=data_root + 'annotations/train2017.json',
+        img_prefix=data_root + 'images/',
+        pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'annotations/test2017.json',
@@ -54,5 +46,4 @@ data = dict(
         ann_file=data_root + 'annotations/test2017.json',
         img_prefix=data_root + 'images/',
         pipeline=test_pipeline))
-
-
+evaluation = dict(metric=['bbox', 'segm'])
